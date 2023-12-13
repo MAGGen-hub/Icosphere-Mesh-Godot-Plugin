@@ -2,7 +2,7 @@
 class_name IcosphereMesh extends ArrayMesh
 #region ToolInterface
 ## Radius of icosphere.
-@export_range(0.001,100) var radius := 0.5:
+@export_range(0.001,100,0.001,"or_greater") var radius := 0.5:
 	set(value):
 		if not radius == value:
 			radius = value
@@ -15,7 +15,7 @@ class_name IcosphereMesh extends ArrayMesh
 			surface_update_vertex_region(0,0,apply_size().to_byte_array())
 
 ## Full heigth of the icosphere
-@export_range(0.001,100) var heigth := 1.0:
+@export_range(0.001,100,0.001,"or_greater") var heigth := 1.0:
 	set(value):
 		if not heigth == value:
 			heigth = value
@@ -44,7 +44,7 @@ enum UV_TYPE {Sphere,Square}
 # Can be used for LOD control.
 ## Usualy meshes like Icosphere has "subdivisions" parameter that splits icosaedron triangle into 2^(subdivisions+1) triangles.[br][br]
 ## This parameter allow you to split icosaedron triangle into edge_count^2 triangles for better "customization".
-@export_range(1,96) var edge_count : int = 16:
+@export_range(1,96,1,"or_greater") var edge_count : int = 16:
 	set(value):
 		if not value == edge_count:
 			edge_count = value

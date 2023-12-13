@@ -7,5 +7,5 @@ Icosphere mesh generator with two UV types support, and advanced subdivider meth
 UV Modes:<br>
 ![Earth Icosphere](https://raw.githubusercontent.com/MAGGen-hub/Icosphere-Mesh-Godot-Plugin/main/previews/uv_modes_preview.png)
 
-Earth Texture<br>:
+Earth Texture:<br>
 ![Earth Icosphere](https://raw.githubusercontent.com/MAGGen-hub/Icosphere-Mesh-Godot-Plugin/main/previews/earth_icosphere.png)

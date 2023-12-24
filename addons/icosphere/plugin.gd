@@ -37,7 +37,7 @@
 @tool
 extends EditorPlugin
 func _enter_tree() -> void:
-	add_custom_type("IcoSphereMesh", "ArrayMesh", preload("IcosphereMesh.gd"), preload("icon.png"))
+	add_custom_type("IcoSphereMesh", "ArrayMesh", preload("IcosphereMesh.gd"), preload("IcoSphereMesh.svg"))
 
 func _exit_tree() -> void:
 	remove_custom_type("IcoSphereMesh")

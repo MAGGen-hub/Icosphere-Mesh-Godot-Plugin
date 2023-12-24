@@ -1,5 +1,8 @@
 @tool
-class_name IcosphereMesh extends ArrayMesh
+## Class representing a spherical non-[PrimitiveMesh].
+##
+## Class that creates a [SphereMesh] with poligon coverage based on subdivided Icosaedron.
+class_name IcoSphereMesh extends ArrayMesh
 #region ToolInterface
 ## Radius of icosphere.
 @export_range(0.001,100,0.001,"or_greater") var radius := 0.5:
@@ -13,6 +16,7 @@ class_name IcosphereMesh extends ArrayMesh
 			# This litle trick allow user to edit Icosphere as easy as default
 			# godot UV-Sphere, without resetng mouse focus each property change. 
 			surface_update_vertex_region(0,0,apply_size().to_byte_array())
+			emit_changed()
 
 ## Full heigth of the icosphere
 @export_range(0.001,100,0.001,"or_greater") var heigth := 1.0:
@@ -26,14 +30,14 @@ class_name IcosphereMesh extends ArrayMesh
 			# This litle trick allow user to edit Icosphere as easy as default
 			# godot UV-Sphere, without resetng mouse focus each property change. 
 			surface_update_vertex_region(0,0,apply_size().to_byte_array())
+			emit_changed()
 
 # To understand how Square UV mode works.
 # Open "addons/icosphere/demo/demo.tscn"
-enum UV_TYPE {Sphere,Square}
 ## Sets UV map type. By default Icosphere has default godot sphere UV map. [br][br]
 ## [b]Sphere:[/b] Default godot sphere UV map. [br][br]
 ## [b]Square:[/b] Special UV map designed to minimize texture distortion that default UV-Sphere has.
-@export var _uv_type = UV_TYPE.Sphere:
+@export_enum("Sphere","Square") var _uv_type = 0:
 	set(value):
 		_uv_type=value
 		update_mesh()
@@ -69,7 +73,6 @@ enum UV_TYPE {Sphere,Square}
 
 #region Constants
 # base position coords [created with formula: phi = (1 + sqrt(5))/2 ]
-const N = 0.0
 const Y = 0.44721364974976
 const A = 0.89442718029022
 const B = 0.85065084695816
@@ -78,13 +81,13 @@ const D = 0.72360685467720
 const E = 0.52573114633560
 # base vertices
 const core_vertices : PackedVector3Array = [
-	Vector3(N,-1,N) , Vector3(N,1,N)   , #0 ,1
-	Vector3(-D,-Y,-E) , Vector3(-A,Y,N)  , #2 ,3
+	Vector3(0,-1,0) , Vector3(0,1,0)   , #0 ,1
+	Vector3(-D,-Y,-E) , Vector3(-A,Y,0)  , #2 ,3
 	Vector3(-D,-Y,E)  , Vector3(-C,Y,B)  , #4 ,5 
 	Vector3(C,-Y,B) , Vector3(D,Y,E) , #6 ,7 
-	Vector3(A,-Y,N), Vector3(D,Y,-E) , #8 ,9
+	Vector3(A,-Y,0), Vector3(D,Y,-E) , #8 ,9
 	Vector3(C,-Y,-B), Vector3(-C,Y,-B) , #10,11
-	Vector3(-D,-Y,-E) , Vector3(-A,Y,N)  , #2 ,3
+	Vector3(-D,-Y,-E) , Vector3(-A,Y,0)  , #2 ,3
 ]
 # base triangles
 const core_triangles: PackedVector3Array = [
@@ -107,9 +110,17 @@ const square_uvs : Array = [
 
 #region MeshBuild
 # Changable variables
+## Important array with mesh vertices. Required to edit heigth/radius of mesh without performance issues.[br][br]
+## [b]Note:[/b] Changing this outside of script may produce unpredicted behaviour!
 var vertices : PackedVector3Array = []
+## Array with faces/poligons of mesh.[br][br]
+## [b]Note:[/b] Resets after mesh generation.
 var triangles: PackedVector3Array = []
+## Array with UV coordinates.[br][br]
+## [b]Note:[/b] Resets after mesh generation.
 var uvs      : PackedVector2Array = []
+## Contains vertices that was generated before, to prevent vertices doubling.[br][br]
+## [b]Note:[/b] Resets after mesh generation.
 var lookup   : Dictionary         = {}
 
 ## Mesh update on launch.
@@ -133,7 +144,7 @@ func update_mesh():
 		materials.append(surface_get_material(i))
 	## Initialize base values
 	clear_surfaces()
-	if _uv_type==UV_TYPE.Square:
+	if _uv_type==1:
 		## Square UV mode
 		var offset=Vector3.ONE*6
 		for i in 5: # Five separate segments
@@ -175,8 +186,7 @@ func update_mesh():
 	arrays[ArrayMesh.ARRAY_TEX_UV]= uvs
 	arrays[ArrayMesh.ARRAY_NORMAL]= vertices #normals here are equal to vertices
 	## Create the Mesh
-	self.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays)
-	#self.emit_changed()
+	add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays)
 	## Regen materials
 	for i in materials.size():
 		surface_set_material(i,materials[i])
@@ -184,6 +194,7 @@ func update_mesh():
 	triangles = []
 	uvs = []
 	lookup = {}
+	emit_changed()
 
 ## This method required to prevent vertices dublication
 ## Good for mesh optimisation
@@ -198,7 +209,7 @@ func lookup_for_array(first:int,second:int,divs:int):
 		for j in divs:
 			array.push_back(vertices.size())# middle vertices
 			vertices.push_back((vertices[first]*(divs+1-(j+1)) + vertices[second]*(j+1)).normalized())
-			if _uv_type==UV_TYPE.Square:# UV generator(subdivider) for Square_UV mode
+			if _uv_type==1:# UV generator(subdivider) for Square_UV mode
 				uvs.push_back((uvs[first]*(divs+1-(j+1)) + uvs[second]*(j+1))/(divs+1))
 		array.push_back(second)# last vertice
 		lookup[key]=array # upload in lookup array

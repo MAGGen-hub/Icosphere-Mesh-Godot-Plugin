@@ -101,11 +101,11 @@ billboard = 1
 text = "IcoSphere
 SphereUV"
 
-[node name="Icosphere-SphereUV2" type="CSGMesh3D" parent="."]
+[node name="Icosphere-UVW-optimised" type="CSGMesh3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1.25)
 mesh = SubResource("ArrayMesh_shl3d")
 
-[node name="Label3D" type="Label3D" parent="Icosphere-SphereUV2"]
+[node name="Label3D" type="Label3D" parent="Icosphere-UVW-optimised"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.75, 0)
 billboard = 1
 text = "IcoSphere

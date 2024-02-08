@@ -36,8 +36,9 @@ class_name IcoSphereMesh extends ArrayMesh
 # Open "addons/icosphere/demo/demo.tscn"
 ## Sets UV map type. By default Icosphere has default godot sphere UV map. [br][br]
 ## [b]Sphere:[/b] Default godot sphere UV map. [br][br]
-## [b]Square:[/b] Special UV map designed to minimize texture distortion that default UV-Sphere has.
-@export_enum("Sphere","Square") var _uv_type = 0:
+## [b]Square:[/b] Special UV map designed to minimize texture distortion that default UV-Sphere has.[br][br]
+## [b]UVW:[/b] No UV map, optimised vertexs cout, faster calculations. Good for custom UVW shaders.
+@export_enum("Sphere","Square","UVW") var _uv_type = 0:
 	set(value):
 		_uv_type=value
 		update_mesh()
@@ -167,11 +168,12 @@ func update_mesh():
 		if edge_count>1:
 			triangles=subdivide(edge_count-1)
 		# Full Sphere type UV build
-		for vertice in vertices:
-			uvs.push_back(gen_uv(vertice))
-		# UV fixers
-		fix_zipper()
-		fix_poles()
+		if _uv_type==0:
+			for vertice in vertices:
+				uvs.push_back(gen_uv(vertice))
+			# UV fixers
+			fix_zipper()
+			fix_poles()
 	## Convert tiangles to PoolIntArray
 	var triangles_pi : PackedInt32Array = []
 	for triangle in triangles:
@@ -183,7 +185,8 @@ func update_mesh():
 	arrays.resize(ArrayMesh.ARRAY_MAX)
 	arrays[ArrayMesh.ARRAY_VERTEX] = apply_size()# Auto scale vertices
 	arrays[ArrayMesh.ARRAY_INDEX] = triangles_pi
-	arrays[ArrayMesh.ARRAY_TEX_UV]= uvs
+	if _uv_type != 2: ##Disable UV mapping for custom UVW mode
+		arrays[ArrayMesh.ARRAY_TEX_UV]= uvs
 	arrays[ArrayMesh.ARRAY_NORMAL]= vertices #normals here are equal to vertices
 	## Create the Mesh
 	add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays)
